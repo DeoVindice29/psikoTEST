@@ -592,7 +592,7 @@ function kBuildChartSVG(history){
     const topY = yBase-correctH-wrongH;
     bars += `<rect x="${x}" y="${topY.toFixed(1)}" width="${barW}" height="${wrongH.toFixed(1)}" fill="var(--red)" opacity="0.85"/>`;
     bars += `<rect x="${x}" y="${(yBase-correctH).toFixed(1)}" width="${barW}" height="${correctH.toFixed(1)}" fill="var(--green)" opacity="0.9"/>`;
-    bars += `<text x="${x+barW/2}" y="${(topY-4).toFixed(1)}" font-size="9.5" font-weight="600" text-anchor="middle" fill="var(--ink)" font-family="'IBM Plex Mono',monospace">${c.total}</text>`;
+    bars += `<text x="${x+barW/2}" y="${(topY-4).toFixed(1)}" font-size="9" font-weight="600" text-anchor="middle" fill="var(--ink)" font-family="'IBM Plex Mono',monospace">${c.correct}/${c.total}</text>`;
     const showLabel = history.length<=25 || i%2===0 || i===history.length-1;
     if(showLabel){
       bars += `<text x="${x+barW/2}" y="${chartH-6}" font-size="9" text-anchor="middle" fill="var(--ink-faint)" font-family="'IBM Plex Mono',monospace">${i+1}</text>`;
