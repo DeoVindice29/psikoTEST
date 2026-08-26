@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>psikoTEST — Latihan Psikotes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE6D6;
+    --paper-light:#F6F1E6;
+    --paper-dark:#E2D8C1;
+    --ink:#1F2A44;
+    --ink-soft:#4A5570;
+    --ink-faint:#8A8875;
+    --red:#B8402C;
+    --green:#3F6C51;
+    --amber:#B8862E;
+    --rule:#C9BB9C;
+    --rule-strong:#A9986F;
+    --shadow: 0 2px 0 rgba(31,42,68,0.06);
+    --shadow-strong: 5px 5px 0 rgba(31,42,68,0.12);
+    --btn-hover:#2c3a5e;
+    --green-bg:#E4EDE7;
+    --red-bg:#F3E2DD;
+  }
+  html[data-theme="dark"]{
+    --paper:#17171B;
+    --paper-light:#1E1E22;
+    --paper-dark:#131316;
+    --ink:#E9E3D3;
+    --ink-soft:#B3AB94;
+    --ink-faint:#6E6A5A;
+    --red:#E2725B;
+    --green:#7BB596;
+    --amber:#D9A44A;
+    --rule:#38362F;
+    --rule-strong:#514C3B;
+    --shadow: 0 2px 0 rgba(0,0,0,0.35);
+    --shadow-strong: 5px 5px 0 rgba(0,0,0,0.5);
+    --btn-hover:#F3EEDD;
+    --green-bg:rgba(123,181,150,0.14);
+    --red-bg:rgba(226,114,91,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      repeating-linear-gradient(180deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 34px),
+      var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    transition:background-color .2s ease, color .2s ease;
+  }
+  html[data-theme="dark"] body{
+    background:
+      repeating-linear-gradient(180deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 34px),
+      var(--paper);
+  }
+  .cover, .panel, .nav button, .k-column, .stat-row .stat, .q-opt{
+    transition:background-color .2s ease, border-color .2s ease, color .2s ease;
+  }
+  html{ -webkit-text-size-adjust:100%; }
+  body{ overflow-x:hidden; }
+  .wrap{max-width:920px;margin:0 auto;padding:clamp(16px,4vw,28px) clamp(14px,4vw,20px) 60px;}
+  img,svg{max-width:100%;}
+  ::selection{background:var(--amber);color:var(--paper-light);}
+
+  /* ---------- HERO / COVER PAGE ---------- */
+  .cover{
+    background:var(--paper-light);
+    border:1.5px solid var(--ink);
+    box-shadow:var(--shadow-strong);
+    padding:clamp(18px,4vw,26px) clamp(16px,4vw,28px) clamp(16px,3vw,22px);
+    position:relative;
+    margin-bottom:clamp(20px,4vw,34px);
+  }
+  .cover::before{
+    content:"";
+    position:absolute; inset:6px;
+    border:1px solid var(--rule);
+    pointer-events:none;
+  }
+  .cover-top{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:18px;
+  }
+  .stamp{
+    border:1.5px solid var(--red); color:var(--red);
+    padding:3px 10px; border-radius:3px; transform:rotate(-3deg);
+    font-weight:600; letter-spacing:.12em;
+  }
+  .cover h1{
+    font-family:'IBM Plex Serif', serif;
+    font-weight:700;
+    font-size:clamp(38px,7vw,58px);
+    letter-spacing:-0.01em;
+    margin:0 0 4px;
+    line-height:.98;
+  }
+  .cover h1 span{color:var(--red);}
+  .cover p.sub{
+    font-size:15.5px; color:var(--ink-soft); max-width:520px; line-height:1.55;
+    margin:10px 0 20px;
+  }
+  .theme-toggle{
+    display:flex; align-items:center; gap:7px;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    background:transparent; border:1.5px solid var(--rule-strong); color:var(--ink-soft);
+    padding:4px 10px 4px 8px; border-radius:3px; cursor:pointer;
+  }
+  .theme-toggle:hover{border-color:var(--ink); color:var(--ink);}
+  .theme-toggle .dot{
+    width:9px; height:9px; border-radius:50%; background:var(--amber); display:inline-block;
+    box-shadow:0 0 0 2px var(--paper) inset;
+  }
+  [data-theme="dark"] .theme-toggle .dot{background:var(--ink-soft);}
+
+  /* ---------- NAV / SUBTES TABS ---------- */
+  .nav{
+    display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;
+  }
+  .nav button{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px; letter-spacing:.03em;
+    background:var(--paper-light);
+    border:1.5px solid var(--ink);
+    color:var(--ink);
+    padding:9px 14px;
+    min-height:44px;
+    cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    transition:transform .12s ease, background .12s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .nav button .num{
+    font-weight:700; color:var(--paper-light); background:var(--ink);
+    border-radius:2px; padding:1px 5px; font-size:11px;
+  }
+  .nav button:hover{transform:translate(-1px,-1px); box-shadow:2px 2px 0 var(--ink);}
+  .nav button.active{background:var(--ink); color:var(--paper-light);}
+  .nav button.active .num{background:var(--red); color:var(--paper-light);}
+
+  /* ---------- MODULE PANEL ---------- */
+  .panel{
+    background:var(--paper-light);
+    border:1.5px solid var(--ink);
+    padding:clamp(16px,4vw,26px) clamp(14px,4vw,26px) clamp(20px,4vw,30px);
+    box-shadow:var(--shadow);
+    min-height:420px;
+  }
+  .panel-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom:2px solid var(--ink); padding-bottom:12px; margin-bottom:20px;
+    flex-wrap:wrap; gap:10px;
+  }
+  .panel-head h2{
+    font-family:'IBM Plex Serif', serif; font-size:24px; margin:0; font-weight:600;
+  }
+  .panel-head p{margin:4px 0 0; color:var(--ink-soft); font-size:13.5px; max-width:520px;}
+  .btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px;
+    background:var(--ink); color:var(--paper-light);
+    border:1.5px solid var(--ink); padding:9px 16px; cursor:pointer;
+    letter-spacing:.03em; min-height:44px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn:hover{background:var(--btn-hover);}
+  .btn.secondary{background:transparent; color:var(--ink);}
+  .btn.secondary:hover{background:var(--paper-dark);}
+  .btn:disabled{opacity:.4; cursor:not-allowed;}
+  .hidden{display:none !important;}
+
+  .stat-row{display:flex; gap:22px; flex-wrap:wrap; font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink-soft); margin-bottom:18px;}
+  .stat-row b{color:var(--ink); font-size:15px; display:block; font-family:'IBM Plex Mono', monospace;}
+  .stat-row .stat{background:var(--paper); border:1px solid var(--rule); padding:8px 14px; min-width:88px;}
+
+  /* ---------- KRAEPELIN ---------- */
+  .k-area{display:flex; gap:36px; align-items:flex-start; flex-wrap:wrap; justify-content:center;}
+  .k-column{
+    font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric:tabular-nums;
+    background:var(--paper);
+    border:1px solid var(--rule-strong);
+    padding:10px 0;
+    width:78px;
+    display:flex; flex-direction:column-reverse;
+    align-items:center;
+  }
+  .k-digit{
+    font-size:19px; font-weight:600; padding:4px 0; width:100%; text-align:center;
+    position:relative;
+  }
+  .k-digit.active{background:var(--amber); color:var(--paper-light); border-radius:2px;}
+  .k-digit.mark-correct::after{content:"✓"; position:absolute; right:6px; color:var(--green); font-size:12px;}
+  .k-digit.mark-wrong::after{content:"✕"; position:absolute; right:6px; color:var(--red); font-size:12px;}
+  .k-controls{flex:1; min-width:220px;}
+  .k-timer{
+    font-family:'IBM Plex Mono', monospace; font-size:34px; font-weight:700;
+    color:var(--ink); margin-bottom:4px;
+  }
+  .k-timer.low{color:var(--red);}
+  .k-controls .hint{color:var(--ink-soft); font-size:12.5px; margin-bottom:16px;}
+  .k-input-row{display:flex; gap:10px; margin-bottom:18px;}
+  .k-input-row input{
+    font-family:'IBM Plex Mono', monospace; font-size:22px; width:80px;
+    text-align:center; border:1.5px solid var(--ink); background:var(--paper-light);
+    padding:8px 0; color:var(--ink); min-height:44px;
+  }
+  .k-input-row .btn{flex:1; max-width:140px;}
+  .k-input-row input:focus{outline:2px solid var(--amber); outline-offset:1px;}
+  .k-summary{border:1px dashed var(--rule-strong); padding:16px 18px; margin-top:14px; background:var(--paper);}
+  .k-summary h3{margin:0 0 8px; font-family:'IBM Plex Serif',serif;}
+
+  /* ---------- QUIZ MODULES (deret/sinonim/antonim/aritmatika) ---------- */
+  .q-progress{
+    height:5px; background:var(--paper-dark); margin-bottom:20px; position:relative; overflow:hidden;
+    border:1px solid var(--rule);
+  }
+  .q-progress i{display:block; height:100%; background:var(--red); transition:width .25s ease;}
+  .q-card{margin-bottom:22px;}
+  .q-prompt{
+    font-family:'IBM Plex Serif', serif; font-size:21px; font-weight:600; margin-bottom:18px;
+    line-height:1.4;
+  }
+  .q-prompt .seq{font-family:'IBM Plex Mono',monospace; letter-spacing:.02em;}
+  .q-options{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .q-opt{
+    text-align:left; font-family:'IBM Plex Sans',sans-serif; font-size:14.5px;
+    background:var(--paper); border:1.5px solid var(--rule-strong); color:var(--ink);
+    padding:12px 14px;
+    cursor:pointer; display:flex; gap:10px; align-items:baseline;
+    min-height:44px; -webkit-tap-highlight-color:transparent;
+  }
+  .q-opt .letter{font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--ink-soft);}
+  .q-opt:hover{border-color:var(--ink);}
+  .q-opt.correct{background:var(--green-bg); border-color:var(--green); color:var(--green);}
+  .q-opt.wrong{background:var(--red-bg); border-color:var(--red); color:var(--red);}
+  .q-opt.disabled{pointer-events:none;}
+  .q-feedback{font-size:13px; margin-top:8px; min-height:18px; font-family:'IBM Plex Mono',monospace;}
+  .q-feedback.ok{color:var(--green);}
+  .q-feedback.no{color:var(--red);}
+  .q-nextrow{margin-top:16px;}
+  .q-result{text-align:center; padding:30px 10px;}
+  .q-result .score{font-family:'IBM Plex Serif',serif; font-size:52px; font-weight:700; margin:6px 0;}
+  .q-result p{color:var(--ink-soft); max-width:440px; margin:8px auto 22px; font-size:14px; line-height:1.6;}
+
+  footer{
+    text-align:center; margin-top:40px; font-family:'IBM Plex Mono',monospace;
+    font-size:11px; color:var(--ink-faint); letter-spacing:.04em;
+  }
+
+  /* ---------- TABLET (iPad portrait/landscape) ---------- */
+  @media (max-width:1024px){
+    .wrap{max-width:100%;}
+    .cover h1{font-size:clamp(32px,6.5vw,50px);}
+    .k-area{gap:24px;}
+    .stat-row{gap:12px;}
+    .stat-row .stat{min-width:76px; padding:7px 11px;}
+    .q-options{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));}
+  }
+
+  /* ---------- MOBILE ---------- */
+  @media (max-width:600px){
+    .cover-top{flex-direction:row; align-items:center; font-size:10px;}
+    .cover-top > span:first-child{display:none;}
+    .stamp{padding:2px 8px; font-size:10px;}
+    .theme-toggle{padding:4px 8px 4px 7px;}
+    .theme-toggle #theme-toggle-label{display:none;}
+    .nav{
+      flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;
+      margin:0 -20px 22px; padding:0 20px 4px;
+      scroll-snap-type:x proximity;
+    }
+    .nav::-webkit-scrollbar{display:none;}
+    .nav button{white-space:nowrap; scroll-snap-align:start; flex:0 0 auto;}
+    .panel-head{flex-direction:column; align-items:stretch;}
+    .panel-head .btn{width:100%;}
+    .panel-head > div:last-child{display:flex; flex-direction:column; gap:8px;}
+    .q-options{grid-template-columns:1fr;}
+    .q-nextrow .btn, .q-result .btn{width:100%;}
+    .k-area{gap:20px; flex-direction:column; align-items:center;}
+    .k-controls{width:100%; min-width:0;}
+    .k-input-row{justify-content:center;}
+    .k-input-row input{width:64px;}
+    .stat-row{gap:8px;}
+    .stat-row .stat{flex:1 1 40%; min-width:0;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="cover">
+    <div class="cover-top">
+      <span>Lembar Latihan — Seleksi Psikologi</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">
+          <span class="dot"></span><span id="theme-toggle-label">Mode Gelap</span>
+        </button>
+        <span class="stamp">LATIHAN</span>
+      </div>
+    </div>
+    <h1>psiko<span>TEST</span></h1>
+    <p class="sub">Simulasi latihan psikotes: tes Kraepelin, deret angka, sinonim, antonim, dan aritmatika dasar — dikerjakan langsung di peramban, dengan waktu dan koreksi otomatis seperti lembar ujian asli.</p>
+  </div>
+
+  <nav class="nav" id="nav">
+    <button data-mod="kraepelin" class="active"><span class="num">01</span> Tes Kraepelin</button>
+    <button data-mod="deret"><span class="num">02</span> Deret Angka</button>
+    <button data-mod="sinonim"><span class="num">03</span> Sinonim</button>
+    <button data-mod="antonim"><span class="num">04</span> Antonim</button>
+    <button data-mod="aritmatika"><span class="num">05</span> Aritmatika</button>
+  </nav>
+
+  <!-- ===================== KRAEPELIN ===================== -->
+  <section class="panel mod" id="mod-kraepelin">
+    <div class="panel-head">
+      <div>
+        <h2>Subtes 01 — Tes Kraepelin</h2>
+        <p>Jumlahkan dua angka yang bersebelahan (dari bawah ke atas), tulis angka satuannya. Kolom berganti otomatis tiap waktu habis — sama seperti lembar Kraepelin asli.</p>
+      </div>
+      <div>
+        <button class="btn" id="k-start">Mulai</button>
+        <button class="btn secondary hidden" id="k-finish">Selesai &amp; Lihat Hasil</button>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">Kolom<br><b id="k-stat-col">0</b></div>
+      <div class="stat">Dikerjakan<br><b id="k-stat-total">0</b></div>
+      <div class="stat">Benar<br><b id="k-stat-correct">0</b></div>
+      <div class="stat">Akurasi<br><b id="k-stat-acc">0%</b></div>
+    </div>
+
+    <div class="k-area" id="k-area">
+      <div class="k-column" id="k-column"></div>
+      <div class="k-controls">
+        <div class="k-timer" id="k-timer">20s</div>
+        <div class="hint">Ketik hasil penjumlahan (angka satuan), lalu tekan <b>Enter</b>.</div>
+        <div class="k-input-row">
+          <input id="k-input" type="tel" maxlength="1" inputmode="numeric" disabled>
+          <button class="btn" id="k-submit" disabled>Jawab</button>
+        </div>
+        <div id="k-summary-box"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== DERET ANGKA ===================== -->
+  <section class="panel mod hidden" id="mod-deret">
+    <div class="panel-head">
+      <div>
+        <h2>Subtes 02 — Deret Angka</h2>
+        <p>Temukan pola pada deret, lalu pilih angka selanjutnya. 30 soal per sesi.</p>
+      </div>
+      <button class="btn" id="deret-start">Mulai Sesi</button>
+    </div>
+    <div class="q-progress hidden" id="deret-progress"><i style="width:0%"></i></div>
+    <div id="deret-body"></div>
+  </section>
+
+  <!-- ===================== SINONIM ===================== -->
+  <section class="panel mod hidden" id="mod-sinonim">
+    <div class="panel-head">
+      <div>
+        <h2>Subtes 03 — Sinonim (Padanan Kata)</h2>
+        <p>Pilih kata yang paling dekat maknanya dengan kata yang diberikan. 30 soal per sesi.</p>
+      </div>
+      <button class="btn" id="sinonim-start">Mulai Sesi</button>
+    </div>
+    <div class="q-progress hidden" id="sinonim-progress"><i style="width:0%"></i></div>
+    <div id="sinonim-body"></div>
+  </section>
+
+  <!-- ===================== ANTONIM ===================== -->
+  <section class="panel mod hidden" id="mod-antonim">
+    <div class="panel-head">
+      <div>
+        <h2>Subtes 04 — Antonim (Lawan Kata)</h2>
+        <p>Pilih kata yang paling berlawanan makna dengan kata yang diberikan. 30 soal per sesi.</p>
+      </div>
+      <button class="btn" id="antonim-start">Mulai Sesi</button>
+    </div>
+    <div class="q-progress hidden" id="antonim-progress"><i style="width:0%"></i></div>
+    <div id="antonim-body"></div>
+  </section>
+
+  <!-- ===================== ARITMATIKA ===================== -->
+  <section class="panel mod hidden" id="mod-aritmatika">
+    <div class="panel-head">
+      <div>
+        <h2>Subtes 05 — Aritmatika Dasar</h2>
+        <p>Soal hitungan cepat: persentase, perbandingan, dan operasi campuran. 30 soal per sesi.</p>
+      </div>
+      <button class="btn" id="aritmatika-start">Mulai Sesi</button>
+    </div>
+    <div class="q-progress hidden" id="aritmatika-progress"><i style="width:0%"></i></div>
+    <div id="aritmatika-body"></div>
+  </section>
+
+  <footer>psikoTEST — alat bantu latihan mandiri, bukan alat diagnosis atau penilaian resmi psikologi</footer>
+</div>
+
+<script>
+/* ============================================================
+   DARK MODE TOGGLE
+   ============================================================ */
+(function(){
+  const root = document.documentElement;
+  const btn = document.getElementById('theme-toggle');
+  const label = document.getElementById('theme-toggle-label');
+  function setTheme(dark){
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+    btn.setAttribute('aria-pressed', String(dark));
+    label.textContent = dark ? 'Mode Terang' : 'Mode Gelap';
+  }
+  setTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  btn.addEventListener('click', ()=>{
+    setTheme(root.getAttribute('data-theme') !== 'dark');
+  });
+})();
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+const navBtns = document.querySelectorAll('#nav button');
+navBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    navBtns.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.mod').forEach(m=>m.classList.add('hidden'));
+    document.getElementById('mod-'+btn.dataset.mod).classList.remove('hidden');
+  });
+});
+
+const $ = id => document.getElementById(id);
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function rnd(min,max){ return min + Math.floor(Math.random()*(max-min+1)); }
+
+/* ============================================================
+   MODULE 01 — KRAEPELIN
+   ============================================================ */
+const K = {
+  colLen: 34,
+  colSeconds: 20,
+  digits: [],
+  pointer: 0,
+  columns: 0,
+  correct: 0,
+  total: 0,
+  timeLeft: 20,
+  timerId: null,
+  running: false,
+};
+
+function kRenderColumn(){
+  const col = $('k-column');
+  col.innerHTML = '';
+  // column-reverse flex means first child in DOM appears at bottom visually is reversed;
+  // we want index 0 at TOP, index colLen-1 at BOTTOM, and flex-direction:column-reverse
+  // renders first DOM child at the bottom. So append in order 0..len-1 -> index0 ends up top. Good.
+  K.digits.forEach((d,i)=>{
+    const div = document.createElement('div');
+    div.className='k-digit';
+    div.id = 'k-digit-'+i;
+    div.textContent = d;
+    col.appendChild(div);
+  });
+  kHighlightPair();
+}
+
+function kHighlightPair(){
+  document.querySelectorAll('.k-digit').forEach(d=>d.classList.remove('active'));
+  if(K.pointer>0){
+    const a = $('k-digit-'+K.pointer);
+    const b = $('k-digit-'+(K.pointer-1));
+    if(a) a.classList.add('active');
+    if(b) b.classList.add('active');
+  }
+}
+
+function kNewColumn(){
+  K.digits = Array.from({length:K.colLen}, ()=> rnd(1,9));
+  K.pointer = K.colLen-1;
+  K.columns++;
+  K.timeLeft = K.colSeconds;
+  kRenderColumn();
+  kUpdateStats();
+}
+
+function kUpdateStats(){
+  $('k-stat-col').textContent = K.columns;
+  $('k-stat-total').textContent = K.total;
+  $('k-stat-correct').textContent = K.correct;
+  $('k-stat-acc').textContent = K.total ? Math.round(100*K.correct/K.total)+'%' : '0%';
+  $('k-timer').textContent = K.timeLeft+'s';
+  $('k-timer').classList.toggle('low', K.timeLeft<=5);
+}
+
+function kTick(){
+  K.timeLeft--;
+  if(K.timeLeft<=0){
+    kNewColumn();
+  } else {
+    kUpdateStats();
+  }
+}
+
+function kSubmit(){
+  if(!K.running) return;
+  const val = $('k-input').value.trim();
+  if(val===''){ return; }
+  const a = K.digits[K.pointer], b = K.digits[K.pointer-1];
+  const sum = (a+b)%10;
+  const isCorrect = parseInt(val,10)===sum;
+  K.total++;
+  if(isCorrect) K.correct++;
+  const cell = $('k-digit-'+K.pointer);
+  if(cell) cell.classList.add(isCorrect?'mark-correct':'mark-wrong');
+  K.pointer--;
+  $('k-input').value='';
+  if(K.pointer<=0){
+    kNewColumn();
+  } else {
+    kHighlightPair();
+    kUpdateStats();
+  }
+}
+
+function kStart(){
+  K.correct=0; K.total=0; K.columns=0;
+  $('k-summary-box').innerHTML='';
+  kNewColumn();
+  K.running = true;
+  $('k-input').disabled=false;
+  $('k-submit').disabled=false;
+  $('k-input').value='';
+  $('k-input').focus();
+  clearInterval(K.timerId);
+  K.timerId = setInterval(kTick,1000);
+  $('k-start').classList.add('hidden');
+  $('k-finish').classList.remove('hidden');
+}
+
+function kFinish(){
+  K.running = false;
+  clearInterval(K.timerId);
+  $('k-input').disabled=true;
+  $('k-submit').disabled=true;
+  $('k-start').classList.remove('hidden');
+  $('k-start').textContent='Ulangi';
+  $('k-finish').classList.add('hidden');
+  const acc = K.total ? Math.round(100*K.correct/K.total) : 0;
+  let note;
+  if(K.total===0) note = 'Belum ada jawaban yang tercatat pada sesi ini.';
+  else if(acc>=90) note = 'Akurasi sangat baik. Coba pertahankan kecepatan pada sesi berikutnya.';
+  else if(acc>=75) note = 'Akurasi cukup baik. Latih konsistensi agar kecepatan dan ketepatan makin seimbang.';
+  else note = 'Akurasi masih bisa ditingkatkan — coba perlambat sedikit agar penjumlahan lebih teliti, lalu naikkan kecepatan bertahap.';
+  $('k-summary-box').innerHTML = `
+    <div class="k-summary">
+      <h3>Ringkasan Sesi</h3>
+      <div class="stat-row" style="margin-bottom:10px;">
+        <div class="stat">Kolom<br><b>${K.columns}</b></div>
+        <div class="stat">Total Soal<br><b>${K.total}</b></div>
+        <div class="stat">Benar<br><b>${K.correct}</b></div>
+        <div class="stat">Akurasi<br><b>${acc}%</b></div>
+      </div>
+      <p style="margin:0;color:var(--ink-soft);font-size:13.5px;line-height:1.6;">${note}</p>
+    </div>`;
+}
+
+$('k-start').addEventListener('click', kStart);
+$('k-finish').addEventListener('click', kFinish);
+$('k-submit').addEventListener('click', kSubmit);
+$('k-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter') kSubmit();
+});
+$('k-input').addEventListener('input', e=>{
+  // keep only last typed digit
+  e.target.value = e.target.value.replace(/[^0-9]/g,'').slice(-1);
+});
+kUpdateStats();
+
+/* ============================================================
+   GENERIC QUIZ ENGINE (deret / sinonim / antonim / aritmatika)
+   ============================================================ */
+function buildQuizUI(container, questions, opts){
+  // questions: array of {prompt, options:[4], correctIndex}
+  let idx = 0, score = 0;
+  const progressEl = document.getElementById(opts.progressId);
+  const progressBar = progressEl.querySelector('i');
+  progressEl.classList.remove('hidden');
+
+  function renderQuestion(){
+    const q = questions[idx];
+    progressBar.style.width = Math.round(100*idx/questions.length)+'%';
+    const letters = ['A','B','C','D'];
+    container.innerHTML = `
+      <div class="q-card">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);margin-bottom:6px;">SOAL ${idx+1} DARI ${questions.length}</div>
+        <div class="q-prompt">${q.prompt}</div>
+        <div class="q-options">
+          ${q.options.map((opt,i)=>`<button class="q-opt" data-i="${i}"><span class="letter">${letters[i]}</span><span>${opt}</span></button>`).join('')}
+        </div>
+        <div class="q-feedback" id="qf-${opts.key}"></div>
+        <div class="q-nextrow">
+          <button class="btn secondary hidden" id="qn-${opts.key}">Soal Berikutnya →</button>
+        </div>
+      </div>`;
+    const optBtns = container.querySelectorAll('.q-opt');
+    optBtns.forEach(b=>{
+      b.addEventListener('click', ()=>{
+        optBtns.forEach(x=>x.classList.add('disabled'));
+        const chosen = parseInt(b.dataset.i,10);
+        const fb = document.getElementById('qf-'+opts.key);
+        if(chosen===q.correctIndex){
+          b.classList.add('correct');
+          score++;
+          fb.textContent = 'Benar.';
+          fb.className='q-feedback ok';
+        } else {
+          b.classList.add('wrong');
+          optBtns[q.correctIndex].classList.add('correct');
+          fb.textContent = 'Kurang tepat. Jawaban yang benar: '+letters[q.correctIndex]+'.';
+          fb.className='q-feedback no';
+        }
+        const nb = document.getElementById('qn-'+opts.key);
+        nb.classList.remove('hidden');
+        nb.onclick = ()=>{
+          idx++;
+          if(idx>=questions.length){ renderResult(); } else { renderQuestion(); }
+        };
+      });
+    });
+  }
+
+  function renderResult(){
+    progressBar.style.width='100%';
+    const pct = Math.round(100*score/questions.length);
+    let note;
+    if(pct>=85) note = opts.praiseHigh;
+    else if(pct>=60) note = opts.praiseMid;
+    else note = opts.praiseLow;
+    container.innerHTML = `
+      <div class="q-result">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-faint);letter-spacing:.08em;">HASIL SESI</div>
+        <div class="score">${score}/${questions.length}</div>
+        <p>${note}</p>
+        <button class="btn" id="qr-${opts.key}">Coba Lagi</button>
+      </div>`;
+    document.getElementById('qr-'+opts.key).addEventListener('click', opts.restart);
+  }
+
+  renderQuestion();
+}
+
+/* ============================================================
+   MODULE 02 — DERET ANGKA
+   ============================================================ */
+function genDeretQuestion(){
+  const type = rnd(1,5);
+  let seq = [], next;
+  if(type===1){ // aritmatika naik/turun
+    const start = rnd(1,30);
+    const diff = rnd(1,9) * (Math.random()<0.5?-1:1);
+    seq = [0,1,2,3,4].map(i=>start+diff*i);
+    next = start+diff*5;
+  } else if(type===2){ // geometri
+    const start = rnd(1,6);
+    const ratio = rnd(2,3);
+    seq = [0,1,2,3,4].map(i=>start*Math.pow(ratio,i));
+    next = start*Math.pow(ratio,5);
+  } else if(type===3){ // selang-seling +a -b
+    const start = rnd(5,30);
+    const a = rnd(2,8), b = rnd(1,6);
+    seq = [start];
+    for(let i=0;i<4;i++){
+      seq.push(i%2===0? seq[seq.length-1]+a : seq[seq.length-1]-b);
+    }
+    next = seq.length%2===0? seq[seq.length-1]+a : seq[seq.length-1]-b;
+  } else if(type===4){ // fibonacci-like
+    let a = rnd(1,5), b = rnd(1,5);
+    seq = [a,b];
+    for(let i=0;i<3;i++){ const c=seq[seq.length-1]+seq[seq.length-2]; seq.push(c); }
+    next = seq[seq.length-1]+seq[seq.length-2];
+  } else { // selisih bertambah
+    const start = rnd(1,10);
+    let d = rnd(1,4);
+    seq=[start];
+    for(let i=0;i<4;i++){ d+=1; seq.push(seq[seq.length-1]+d); }
+    next = seq[seq.length-1]+(d+1);
+  }
+  const correct = next;
+  const distractors = new Set();
+  while(distractors.size<3){
+    const delta = rnd(1,6) * (Math.random()<0.5?-1:1);
+    const cand = correct + delta*(Math.abs(correct)<20?1:Math.max(1,Math.round(Math.abs(correct)*0.08)));
+    if(cand!==correct) distractors.add(cand);
+  }
+  const options = shuffle([correct, ...distractors]);
+  return {
+    prompt: `<span class="seq">${seq.join(',  ')},  ?</span>`,
+    options: options.map(o=>String(o)),
+    correctIndex: options.indexOf(correct)
+  };
+}
+
+function startDeret(){
+  const questions = Array.from({length:30}, genDeretQuestion);
+  buildQuizUI($('deret-body'), questions, {
+    key:'deret',
+    progressId:'deret-progress',
+    restart:startDeret,
+    praiseHigh:'Kemampuan membaca pola deret angka sudah kuat. Coba tingkatkan kecepatan menjawab.',
+    praiseMid:'Sudah cukup baik. Latih lagi pola selisih dan rasio agar makin cepat mengenali pola.',
+    praiseLow:'Coba perhatikan selisih atau rasio antar angka satu per satu sebelum menjawab. Latihan rutin akan mempercepat pengenalan pola.'
+  });
+}
+$('deret-start').addEventListener('click', startDeret);
+
+/* ============================================================
+   MODULE 03 & 04 — SINONIM / ANTONIM
+   ============================================================ */
+const sinonimBank = [
+  {word:'AGUNG', correct:'Mulia', distractors:['Kecil','Rapuh','Biasa']},
+  {word:'BAKU', correct:'Standar', distractors:['Longgar','Cair','Acak']},
+  {word:'GALIB', correct:'Umum', distractors:['Langka','Rahasia','Ganjil']},
+  {word:'MUSABAB', correct:'Sebab', distractors:['Akibat','Tujuan','Hasil']},
+  {word:'RANCU', correct:'Kacau', distractors:['Jelas','Rapi','Tenang']},
+  {word:'TENTATIF', correct:'Sementara', distractors:['Tetap','Final','Pasti']},
+  {word:'ANDAL', correct:'Terpercaya', distractors:['Rapuh','Ragu-ragu','Sembarangan']},
+  {word:'GENERIK', correct:'Umum', distractors:['Khusus','Rahasia','Mewah']},
+  {word:'HAKIKI', correct:'Sejati', distractors:['Palsu','Sementara','Ganda']},
+  {word:'KONTEMPORER', correct:'Masa kini', distractors:['Kuno','Klasik','Kekal']},
+  {word:'MANUVER', correct:'Siasat', distractors:['Kejujuran','Ketetapan','Kepastian']},
+  {word:'NORMATIF', correct:'Sesuai kaidah', distractors:['Menyimpang','Bebas','Acak']},
+  {word:'ELABORASI', correct:'Penjelasan rinci', distractors:['Ringkasan','Penolakan','Penghapusan']},
+  {word:'DEDIKASI', correct:'Pengabdian', distractors:['Pengunduran','Penolakan','Kelalaian']},
+  {word:'RESIPROKAL', correct:'Timbal balik', distractors:['Sepihak','Searah','Terpisah']},
+  {word:'AKURAT', correct:'Tepat', distractors:['Meleset','Kira-kira','Samar']},
+  {word:'FLEKSIBEL', correct:'Luwes', distractors:['Kaku','Tegas','Baku']},
+  {word:'DOMINAN', correct:'Menonjol', distractors:['Tersembunyi','Setara','Minor']},
+  {word:'ABSAH', correct:'Sah', distractors:['Batal','Palsu','Ilegal']},
+  {word:'CANGGIH', correct:'Modern', distractors:['Kuno','Sederhana','Usang']},
+  {word:'DINAMIS', correct:'Aktif', distractors:['Statis','Diam','Kaku']},
+  {word:'EMPIRIS', correct:'Berdasarkan pengalaman', distractors:['Berdasarkan teori','Berdasarkan dugaan','Berdasarkan keyakinan']},
+  {word:'FAKTUAL', correct:'Nyata', distractors:['Fiktif','Khayalan','Dugaan']},
+  {word:'GRADUAL', correct:'Bertahap', distractors:['Mendadak','Serentak','Instan']},
+  {word:'HIPOTESIS', correct:'Dugaan sementara', distractors:['Kesimpulan akhir','Fakta pasti','Bukti nyata']},
+  {word:'IMBAS', correct:'Dampak', distractors:['Sebab','Tujuan','Rencana']},
+  {word:'JEDA', correct:'Interval', distractors:['Kelanjutan','Awal','Puncak']},
+  {word:'KOMPLEKS', correct:'Rumit', distractors:['Sederhana','Mudah','Ringkas']},
+  {word:'LEGITIMASI', correct:'Pengesahan', distractors:['Pembatalan','Penolakan','Larangan']},
+  {word:'MANDIRI', correct:'Berdikari', distractors:['Bergantung','Terikat','Tergantung']},
+  {word:'OTENTIK', correct:'Asli', distractors:['Palsu','Tiruan','Imitasi']},
+];
+const antonimBank = [
+  {word:'GASAL', correct:'Genap', distractors:['Ganjil','Tunggal','Ganda']},
+  {word:'MAKAR', correct:'Setia', distractors:['Khianat','Curang','Culas']},
+  {word:'CERAH', correct:'Mendung', distractors:['Terang','Bersih','Jernih']},
+  {word:'ANTIPATI', correct:'Simpati', distractors:['Benci','Curiga','Acuh']},
+  {word:'ABADI', correct:'Fana', distractors:['Kekal','Lama','Panjang']},
+  {word:'MAYOR', correct:'Minor', distractors:['Besar','Utama','Pokok']},
+  {word:'SEKULER', correct:'Religius', distractors:['Duniawi','Bebas','Modern']},
+  {word:'INDIVIDUAL', correct:'Kolektif', distractors:['Pribadi','Tunggal','Sendiri']},
+  {word:'OTORITER', correct:'Demokratis', distractors:['Tegas','Keras','Diktator']},
+  {word:'GERSANG', correct:'Subur', distractors:['Kering','Tandus','Panas']},
+  {word:'KONVERGEN', correct:'Divergen', distractors:['Menyatu','Terpusat','Sejalan']},
+  {word:'EKSPLISIT', correct:'Implisit', distractors:['Jelas','Terang','Gamblang']},
+  {word:'BONGSOR', correct:'Kerdil', distractors:['Besar','Tinggi','Subur']},
+  {word:'LEGAL', correct:'Ilegal', distractors:['Sah','Resmi','Diakui']},
+  {word:'SIMETRIS', correct:'Asimetris', distractors:['Seimbang','Sepadan','Setara']},
+  {word:'OPTIMIS', correct:'Pesimis', distractors:['Yakin','Percaya diri','Positif']},
+  {word:'KONKRET', correct:'Abstrak', distractors:['Nyata','Jelas','Pasti']},
+  {word:'INDUKSI', correct:'Deduksi', distractors:['Penarikan','Simpulan','Analisis']},
+  {word:'MAJU', correct:'Mundur', distractors:['Lanjut','Depan','Berkembang']},
+  {word:'TERBUKA', correct:'Tertutup', distractors:['Bebas','Jelas','Umum']},
+  {word:'UNTUNG', correct:'Rugi', distractors:['Laba','Hasil','Manfaat']},
+  {word:'STATIS', correct:'Dinamis', distractors:['Diam','Tetap','Kaku']},
+  {word:'SUBJEKTIF', correct:'Objektif', distractors:['Pribadi','Sepihak','Berat sebelah']},
+  {word:'KONVENSIONAL', correct:'Modern', distractors:['Tradisional','Lama','Kuno']},
+  {word:'ANTAGONIS', correct:'Protagonis', distractors:['Lawan','Musuh','Penjahat']},
+  {word:'INTROVERT', correct:'Ekstrovert', distractors:['Pendiam','Tertutup','Pemalu']},
+  {word:'SENTRALISASI', correct:'Desentralisasi', distractors:['Pemusatan','Penguasaan','Pengaturan']},
+  {word:'KUALITATIF', correct:'Kuantitatif', distractors:['Mutu','Sifat','Karakter']},
+  {word:'RIGID', correct:'Fleksibel', distractors:['Kaku','Tegas','Keras']},
+  {word:'PROGRESIF', correct:'Regresif', distractors:['Maju','Berkembang','Modern']},
+  {word:'EKSTERN', correct:'Intern', distractors:['Luar','Asing','Eksternal']},
+];
+
+function bankToQuestions(bank, label, n){
+  const picked = shuffle(bank).slice(0, n);
+  return picked.map(item=>{
+    const options = shuffle([item.correct, ...item.distractors]);
+    return {
+      prompt: `${label} kata <b>"${item.word}"</b> adalah:`,
+      options,
+      correctIndex: options.indexOf(item.correct)
+    };
+  });
+}
+
+function startSinonim(){
+  const questions = bankToQuestions(sinonimBank, 'Persamaan makna (sinonim)', 30);
+  buildQuizUI($('sinonim-body'), questions, {
+    key:'sinonim', progressId:'sinonim-progress', restart:startSinonim,
+    praiseHigh:'Penguasaan kosakata sangat baik. Lanjutkan dengan istilah yang lebih jarang digunakan.',
+    praiseMid:'Kosakata cukup baik. Perbanyak membaca untuk memperluas perbendaharaan kata.',
+    praiseLow:'Coba pelajari kembali arti kata-kata yang sering muncul di tes padanan kata secara rutin.'
+  });
+}
+function startAntonim(){
+  const questions = bankToQuestions(antonimBank, 'Lawan kata (antonim)', 30);
+  buildQuizUI($('antonim-body'), questions, {
+    key:'antonim', progressId:'antonim-progress', restart:startAntonim,
+    praiseHigh:'Sangat baik dalam mengenali lawan kata. Pertahankan kecepatan membaca soal.',
+    praiseMid:'Sudah lumayan. Coba latih lagi pasangan kata yang berlawanan makna secara berkala.',
+    praiseLow:'Perbanyak latihan pasangan lawan kata — coba catat kata baru beserta lawannya setiap hari.'
+  });
+}
+$('sinonim-start').addEventListener('click', startSinonim);
+$('antonim-start').addEventListener('click', startAntonim);
+
+/* ============================================================
+   MODULE 05 — ARITMATIKA DASAR
+   ============================================================ */
+function rupiah(n){
+  return 'Rp' + Math.round(n).toLocaleString('id-ID');
+}
+function genAritmatikaQuestion(){
+  const type = rnd(1,3);
+  if(type===1){
+    // diskon persen
+    const harga = rnd(4,90)*5000;
+    const diskon = rnd(2,8)*5;
+    const akhir = harga*(1-diskon/100);
+    const options = shuffle([akhir, akhir+harga*0.05, akhir-harga*0.05, akhir+harga*0.1]);
+    return {
+      prompt: `Sebuah barang berharga ${rupiah(harga)} mendapat diskon ${diskon}%. Berapa harga setelah diskon?`,
+      options: options.map(o=>rupiah(o)),
+      correctIndex: options.indexOf(akhir)
+    };
+  } else if(type===2){
+    // perbandingan terbalik (pekerja & hari)
+    const pekerja1 = rnd(2,6);
+    const hari1 = rnd(4,20);
+    let pekerja2 = pekerja1 + rnd(1,4);
+    const total = pekerja1*hari1;
+    const hari2 = total/pekerja2;
+    const hari2r = Math.round(hari2*10)/10;
+    const options = shuffle([hari2r, hari2r+rnd(1,3), Math.max(1,hari2r-rnd(1,3)), hari2r+rnd(4,6)]);
+    return {
+      prompt: `${pekerja1} pekerja dapat menyelesaikan sebuah proyek dalam ${hari1} hari. Jika pekerja ditambah menjadi ${pekerja2} orang dengan kecepatan kerja sama, berapa hari proyek selesai?`,
+      options: options.map(o=>o+' hari'),
+      correctIndex: options.indexOf(hari2r)
+    };
+  } else {
+    // operasi campuran
+    const a = rnd(2,12), b = rnd(2,12), c = rnd(2,9);
+    const result = a*b - c;
+    const options = shuffle([result, result+c, result-b, result+a]);
+    return {
+      prompt: `Berapakah hasil dari ${a} × ${b} − ${c}?`,
+      options: options.map(o=>String(o)),
+      correctIndex: options.indexOf(result)
+    };
+  }
+}
+function startAritmatika(){
+  const questions = Array.from({length:30}, genAritmatikaQuestion);
+  buildQuizUI($('aritmatika-body'), questions, {
+    key:'aritmatika', progressId:'aritmatika-progress', restart:startAritmatika,
+    praiseHigh:'Kecepatan dan ketelitian berhitung sudah sangat baik.',
+    praiseMid:'Sudah cukup baik. Latih lagi hitungan persentase dan perbandingan agar lebih cepat.',
+    praiseLow:'Coba kerjakan soal hitungan dasar secara bertahap dan periksa kembali setiap langkah sebelum menjawab.'
+  });
+}
+$('aritmatika-start').addEventListener('click', startAritmatika);
+</script>
+</body>
+</html>
