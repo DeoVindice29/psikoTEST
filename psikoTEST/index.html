@@ -182,25 +182,31 @@
   .stat-row .stat{background:var(--paper); border:1px solid var(--rule); padding:8px 14px; min-width:88px;}
 
   /* ---------- KRAEPELIN ---------- */
-  .k-area{display:flex; gap:36px; align-items:flex-start; flex-wrap:wrap; justify-content:center;}
+  .k-area{display:flex; flex-direction:column; gap:20px; align-items:stretch;}
   .k-column{
     font-family:'IBM Plex Mono', monospace;
     font-variant-numeric:tabular-nums;
     background:var(--paper);
     border:1px solid var(--rule-strong);
-    padding:10px 0;
-    width:78px;
-    display:flex; flex-direction:column-reverse;
+    padding:0 10px;
+    width:100%;
+    height:64px;
+    display:flex; flex-direction:row-reverse;
     align-items:center;
+    overflow-x:auto;
+    scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;
   }
+  .k-column::-webkit-scrollbar{height:5px;}
   .k-digit{
-    font-size:19px; font-weight:600; padding:4px 0; width:100%; text-align:center;
-    position:relative;
+    font-size:19px; font-weight:600; padding:0 8px; height:100%; text-align:center;
+    display:flex; align-items:center; justify-content:center;
+    position:relative; flex:0 0 auto;
   }
   .k-digit.active{background:var(--amber); color:var(--paper-light); border-radius:2px;}
-  .k-digit.mark-correct::after{content:"✓"; position:absolute; right:6px; color:var(--green); font-size:12px;}
-  .k-digit.mark-wrong::after{content:"✕"; position:absolute; right:6px; color:var(--red); font-size:12px;}
-  .k-controls{flex:1; min-width:220px;}
+  .k-digit.mark-correct::after{content:"✓"; position:absolute; top:2px; right:2px; color:var(--green); font-size:11px;}
+  .k-digit.mark-wrong::after{content:"✕"; position:absolute; top:2px; right:2px; color:var(--red); font-size:11px;}
+  .k-controls{width:100%;}
   .k-timer{
     font-family:'IBM Plex Mono', monospace; font-size:34px; font-weight:700;
     color:var(--ink); margin-bottom:4px;
@@ -285,7 +291,9 @@
     .panel-head > div:last-child{display:flex; flex-direction:column; gap:8px;}
     .q-options{grid-template-columns:1fr;}
     .q-nextrow .btn, .q-result .btn{width:100%;}
-    .k-area{gap:20px; flex-direction:column; align-items:center;}
+    .k-area{gap:16px;}
+    .k-column{height:52px;}
+    .k-digit{font-size:16px; padding:0 6px;}
     .k-controls{width:100%; min-width:0;}
     .k-input-row{justify-content:center;}
     .k-input-row input{width:64px;}
@@ -342,7 +350,7 @@
     <div class="k-area" id="k-area">
       <div class="k-column" id="k-column"></div>
       <div class="k-controls">
-        <div class="k-timer" id="k-timer">20s</div>
+        <div class="k-timer" id="k-timer">30s</div>
         <div class="hint">Ketik hasil penjumlahan (angka satuan), lalu tekan <b>Enter</b>.</div>
         <div class="k-input-row">
           <input id="k-input" type="tel" maxlength="1" inputmode="numeric" disabled>
@@ -456,15 +464,18 @@ function rnd(min,max){ return min + Math.floor(Math.random()*(max-min+1)); }
    ============================================================ */
 const K = {
   colLen: 34,
-  colSeconds: 20,
+  colSeconds: 30,
   digits: [],
   pointer: 0,
   columns: 0,
   correct: 0,
   total: 0,
-  timeLeft: 20,
+  timeLeft: 30,
   timerId: null,
   running: false,
+  colHistory: [],
+  colCurTotal: 0,
+  colCurCorrect: 0,
 };
 
 function kRenderColumn(){
@@ -490,10 +501,17 @@ function kHighlightPair(){
     const b = $('k-digit-'+(K.pointer-1));
     if(a) a.classList.add('active');
     if(b) b.classList.add('active');
+    if(b) b.scrollIntoView({inline:'center', block:'nearest'});
+    else if(a) a.scrollIntoView({inline:'center', block:'nearest'});
   }
 }
 
 function kNewColumn(){
+  if(K.columns>0){
+    K.colHistory.push({total:K.colCurTotal, correct:K.colCurCorrect});
+  }
+  K.colCurTotal = 0;
+  K.colCurCorrect = 0;
   K.digits = Array.from({length:K.colLen}, ()=> rnd(1,9));
   K.pointer = K.colLen-1;
   K.columns++;
@@ -528,7 +546,8 @@ function kSubmit(){
   const sum = (a+b)%10;
   const isCorrect = parseInt(val,10)===sum;
   K.total++;
-  if(isCorrect) K.correct++;
+  K.colCurTotal++;
+  if(isCorrect){ K.correct++; K.colCurCorrect++; }
   const cell = $('k-digit-'+K.pointer);
   if(cell) cell.classList.add(isCorrect?'mark-correct':'mark-wrong');
   K.pointer--;
@@ -543,6 +562,7 @@ function kSubmit(){
 
 function kStart(){
   K.correct=0; K.total=0; K.columns=0;
+  K.colHistory=[]; K.colCurTotal=0; K.colCurCorrect=0;
   $('k-summary-box').innerHTML='';
   kNewColumn();
   K.running = true;
@@ -556,9 +576,40 @@ function kStart(){
   $('k-finish').classList.remove('hidden');
 }
 
+function kBuildChartSVG(history){
+  if(!history.length) return '';
+  const barW = 14, gap = 8, padT = 18, padB = 22, chartH = 150;
+  const w = Math.max(280, history.length*(barW+gap)+gap);
+  const maxV = Math.max(1, ...history.map(c=>c.total));
+  const innerH = chartH - padT - padB;
+  const yBase = chartH - padB;
+  let bars = '';
+  history.forEach((c,i)=>{
+    const x = i*(barW+gap)+gap;
+    const wrong = c.total - c.correct;
+    const correctH = (c.correct/maxV)*innerH;
+    const wrongH = (wrong/maxV)*innerH;
+    const topY = yBase-correctH-wrongH;
+    bars += `<rect x="${x}" y="${topY.toFixed(1)}" width="${barW}" height="${wrongH.toFixed(1)}" fill="var(--red)" opacity="0.85"/>`;
+    bars += `<rect x="${x}" y="${(yBase-correctH).toFixed(1)}" width="${barW}" height="${correctH.toFixed(1)}" fill="var(--green)" opacity="0.9"/>`;
+    bars += `<text x="${x+barW/2}" y="${(topY-4).toFixed(1)}" font-size="9.5" font-weight="600" text-anchor="middle" fill="var(--ink)" font-family="'IBM Plex Mono',monospace">${c.total}</text>`;
+    const showLabel = history.length<=25 || i%2===0 || i===history.length-1;
+    if(showLabel){
+      bars += `<text x="${x+barW/2}" y="${chartH-6}" font-size="9" text-anchor="middle" fill="var(--ink-faint)" font-family="'IBM Plex Mono',monospace">${i+1}</text>`;
+    }
+  });
+  return `<svg viewBox="0 0 ${w} ${chartH}" width="${w}" height="${chartH}" style="display:block;">
+    <line x1="0" y1="${yBase}" x2="${w}" y2="${yBase}" stroke="var(--rule-strong)" stroke-width="1"/>
+    ${bars}
+  </svg>`;
+}
+
 function kFinish(){
   K.running = false;
   clearInterval(K.timerId);
+  if(K.colCurTotal>0 || K.colHistory.length<K.columns){
+    K.colHistory.push({total:K.colCurTotal, correct:K.colCurCorrect});
+  }
   $('k-input').disabled=true;
   $('k-submit').disabled=true;
   $('k-start').classList.remove('hidden');
@@ -570,6 +621,21 @@ function kFinish(){
   else if(acc>=90) note = 'Akurasi sangat baik. Coba pertahankan kecepatan pada sesi berikutnya.';
   else if(acc>=75) note = 'Akurasi cukup baik. Latih konsistensi agar kecepatan dan ketepatan makin seimbang.';
   else note = 'Akurasi masih bisa ditingkatkan — coba perlambat sedikit agar penjumlahan lebih teliti, lalu naikkan kecepatan bertahap.';
+  const chartSvg = kBuildChartSVG(K.colHistory);
+  const chartBlock = chartSvg ? `
+      <div style="margin-top:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-soft);">Grafik per kolom</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft);">
+            <span style="display:inline-block;width:8px;height:8px;background:var(--green);border-radius:1px;margin-right:4px;"></span>Benar
+            <span style="display:inline-block;width:8px;height:8px;background:var(--red);border-radius:1px;margin:0 4px 0 10px;"></span>Salah
+          </span>
+        </div>
+        <p style="margin:0 0 6px;color:var(--ink-faint);font-size:11.5px;">Angka di atas tiap batang = jumlah soal yang berhasil diselesaikan pada kolom tersebut.</p>
+        <div style="overflow-x:auto; border:1px solid var(--rule); background:var(--paper); padding:6px 4px;">
+          ${chartSvg}
+        </div>
+      </div>` : '';
   $('k-summary-box').innerHTML = `
     <div class="k-summary">
       <h3>Ringkasan Sesi</h3>
@@ -580,6 +646,7 @@ function kFinish(){
         <div class="stat">Akurasi<br><b>${acc}%</b></div>
       </div>
       <p style="margin:0;color:var(--ink-soft);font-size:13.5px;line-height:1.6;">${note}</p>
+      ${chartBlock}
     </div>`;
 }
 
