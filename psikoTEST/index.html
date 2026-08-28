@@ -221,8 +221,50 @@
   }
   .k-input-row .btn{flex:1; max-width:140px;}
   .k-input-row input:focus{outline:2px solid var(--amber); outline-offset:1px;}
+  /* ---------- START COUNTDOWN ---------- */
+  .k-countdown{text-align:center; padding:56px 10px;}
+  .k-countdown-label{
+    font-family:'IBM Plex Mono', monospace; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--ink-soft); font-size:12.5px; margin-bottom:10px;
+  }
+  .k-countdown-num{
+    font-family:'IBM Plex Serif', serif; font-weight:700; font-size:88px; line-height:1;
+    color:var(--ink);
+  }
+  .k-countdown-num.pulse{animation:kCountPulse .5s ease;}
+  @keyframes kCountPulse{
+    0%{opacity:0; transform:scale(1.5);}
+    100%{opacity:1; transform:scale(1);}
+  }
+
+  .k-actions{
+    display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
+    margin-top:22px; padding-top:18px; border-top:1px dashed var(--rule-strong);
+  }
+  .k-actions .btn{min-width:220px; padding:13px 22px; font-size:13px;}
+
   .k-summary{border:1px dashed var(--rule-strong); padding:16px 18px; margin-top:14px; background:var(--paper);}
   .k-summary h3{margin:0 0 8px; font-family:'IBM Plex Serif',serif;}
+
+  /* ---------- CUSTOM NUMERIC KEYPAD (mobile only) ---------- */
+  .k-keypad{display:none; margin-top:4px; margin-bottom:18px; max-width:280px;}
+  .k-keypad-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:8px;}
+  .k-key{
+    font-family:'IBM Plex Mono', monospace; font-size:22px; font-weight:600;
+    background:var(--paper-light); border:1.5px solid var(--ink); color:var(--ink);
+    padding:14px 0; border-radius:4px; cursor:pointer; min-height:52px;
+    -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none;
+  }
+  .k-key:active{background:var(--paper-dark);}
+  .k-key-0{grid-column:2 / 3;}
+  .k-key-enter{
+    width:100%; font-family:'IBM Plex Mono', monospace; font-size:15px; font-weight:700;
+    letter-spacing:.06em; text-transform:uppercase;
+    background:var(--ink); color:var(--paper-light); border:1.5px solid var(--ink);
+    padding:14px 0; border-radius:4px; cursor:pointer; min-height:52px;
+    -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none;
+  }
+  .k-key-enter:active{background:var(--btn-hover);}
 
   /* ---------- QUIZ MODULES (deret/sinonim/antonim/aritmatika) ---------- */
   .q-progress{
@@ -297,6 +339,9 @@
     .k-controls{width:100%; min-width:0;}
     .k-input-row{justify-content:center;}
     .k-input-row input{width:64px;}
+    .k-keypad{display:block; max-width:100%;}
+    .k-actions{margin-top:18px; padding-top:16px;}
+    .k-actions .btn{width:100%; min-width:0; padding:16px 20px; font-size:14px;}
     .stat-row{gap:8px;}
     .stat-row .stat{flex:1 1 40%; min-width:0;}
   }
@@ -334,10 +379,6 @@
         <h2>Subtes 01 — Tes Kraepelin</h2>
         <p>Jumlahkan dua angka yang bersebelahan (dari bawah ke atas), tulis angka satuannya. Kolom berganti otomatis tiap waktu habis — sama seperti lembar Kraepelin asli.</p>
       </div>
-      <div>
-        <button class="btn" id="k-start">Mulai</button>
-        <button class="btn secondary hidden" id="k-finish">Selesai &amp; Lihat Hasil</button>
-      </div>
     </div>
 
     <div class="stat-row">
@@ -345,6 +386,11 @@
       <div class="stat">Dikerjakan<br><b id="k-stat-total">0</b></div>
       <div class="stat">Benar<br><b id="k-stat-correct">0</b></div>
       <div class="stat">Akurasi<br><b id="k-stat-acc">0%</b></div>
+    </div>
+
+    <div class="k-countdown hidden" id="k-countdown">
+      <div class="k-countdown-label">Bersiap</div>
+      <div class="k-countdown-num" id="k-countdown-num">3</div>
     </div>
 
     <div class="k-area" id="k-area">
@@ -356,8 +402,28 @@
           <input id="k-input" type="tel" maxlength="1" inputmode="numeric" disabled>
           <button class="btn" id="k-submit" disabled>Jawab</button>
         </div>
+        <div class="k-keypad" id="k-keypad">
+          <div class="k-keypad-grid">
+            <button type="button" class="k-key" data-d="1">1</button>
+            <button type="button" class="k-key" data-d="2">2</button>
+            <button type="button" class="k-key" data-d="3">3</button>
+            <button type="button" class="k-key" data-d="4">4</button>
+            <button type="button" class="k-key" data-d="5">5</button>
+            <button type="button" class="k-key" data-d="6">6</button>
+            <button type="button" class="k-key" data-d="7">7</button>
+            <button type="button" class="k-key" data-d="8">8</button>
+            <button type="button" class="k-key" data-d="9">9</button>
+            <button type="button" class="k-key k-key-0" data-d="0">0</button>
+          </div>
+          <button type="button" class="k-key-enter" id="k-key-enter">Enter ↵</button>
+        </div>
         <div id="k-summary-box"></div>
       </div>
+    </div>
+
+    <div class="k-actions" id="k-actions">
+      <button class="btn" id="k-start">Mulai</button>
+      <button class="btn secondary hidden" id="k-finish">Selesai &amp; Lihat Hasil</button>
     </div>
   </section>
 
@@ -561,6 +627,29 @@ function kSubmit(){
 }
 
 function kStart(){
+  $('k-start').disabled = true;
+  $('k-area').classList.add('hidden');
+  $('k-countdown').classList.remove('hidden');
+  const numEl = $('k-countdown-num');
+  let n = 3;
+  numEl.textContent = n;
+  numEl.classList.remove('pulse'); void numEl.offsetWidth; numEl.classList.add('pulse');
+  const civ = setInterval(()=>{
+    n--;
+    if(n>0){
+      numEl.textContent = n;
+      numEl.classList.remove('pulse'); void numEl.offsetWidth; numEl.classList.add('pulse');
+    } else {
+      clearInterval(civ);
+      $('k-countdown').classList.add('hidden');
+      $('k-area').classList.remove('hidden');
+      $('k-start').disabled = false;
+      kBeginSession();
+    }
+  }, 1000);
+}
+
+function kBeginSession(){
   K.correct=0; K.total=0; K.columns=0;
   K.colHistory=[]; K.colCurTotal=0; K.colCurCorrect=0;
   $('k-summary-box').innerHTML='';
@@ -578,11 +667,15 @@ function kStart(){
 
 function kBuildChartSVG(history){
   if(!history.length) return '';
-  const barW = 14, gap = 8, padT = 18, padB = 22, chartH = 150;
-  const w = Math.max(280, history.length*(barW+gap)+gap);
-  const maxV = Math.max(1, ...history.map(c=>c.total));
+  const barW = 14, gap = 8, padT = 26, padB = 22, chartH = 160, gutterW = 82;
+  const plotW = Math.max(200, history.length*(barW+gap)+gap);
+  const w = plotW + gutterW;
+  // Keep at least a bit above the "Sangat Bagus" benchmark (23) visible on the y-axis,
+  // even if the user's own columns scored lower.
+  const maxV = Math.max(26, ...history.map(c=>c.total));
   const innerH = chartH - padT - padB;
   const yBase = chartH - padB;
+  const yFor = v => yBase - (v/maxV)*innerH;
   let bars = '';
   history.forEach((c,i)=>{
     const x = i*(barW+gap)+gap;
@@ -592,15 +685,31 @@ function kBuildChartSVG(history){
     const topY = yBase-correctH-wrongH;
     bars += `<rect x="${x}" y="${topY.toFixed(1)}" width="${barW}" height="${wrongH.toFixed(1)}" fill="var(--red)" opacity="0.85"/>`;
     bars += `<rect x="${x}" y="${(yBase-correctH).toFixed(1)}" width="${barW}" height="${correctH.toFixed(1)}" fill="var(--green)" opacity="0.9"/>`;
-    bars += `<text x="${x+barW/2}" y="${(topY-4).toFixed(1)}" font-size="9" font-weight="600" text-anchor="middle" fill="var(--ink)" font-family="'IBM Plex Mono',monospace">${c.correct}/${c.total}</text>`;
+    bars += `<text x="${x+barW/2}" y="${Math.max(9,(topY-4)).toFixed(1)}" font-size="9" font-weight="600" text-anchor="middle" fill="var(--ink)" font-family="'IBM Plex Mono',monospace">${c.correct}/${c.total}</text>`;
     const showLabel = history.length<=25 || i%2===0 || i===history.length-1;
     if(showLabel){
       bars += `<text x="${x+barW/2}" y="${chartH-6}" font-size="9" text-anchor="middle" fill="var(--ink-faint)" font-family="'IBM Plex Mono',monospace">${i+1}</text>`;
     }
   });
+  // Benchmark reference lines: Rata-rata (10), Bagus (16), Sangat Bagus/Istimewa (23).
+  // Dashed line spans only the plot area; its label lives in a dedicated right-hand
+  // gutter so it never overlaps the bars or the per-bar count labels.
+  const thresholds = [
+    {v:10, label:'Rata-rata 10'},
+    {v:16, label:'Bagus 16'},
+    {v:23, label:'Istimewa 23'}
+  ];
+  let refLines = '';
+  thresholds.forEach(t=>{
+    const y = yFor(t.v);
+    refLines += `<line x1="0" y1="${y.toFixed(1)}" x2="${plotW}" y2="${y.toFixed(1)}" stroke="var(--amber)" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>`;
+    refLines += `<rect x="${plotW}" y="${(y-9).toFixed(1)}" width="${gutterW}" height="14" fill="var(--paper)"/>`;
+    refLines += `<text x="${plotW+6}" y="${(y+2).toFixed(1)}" font-size="9" fill="var(--amber)" font-family="'IBM Plex Mono',monospace">${t.label}</text>`;
+  });
   return `<svg viewBox="0 0 ${w} ${chartH}" width="${w}" height="${chartH}" style="display:block;">
-    <line x1="0" y1="${yBase}" x2="${w}" y2="${yBase}" stroke="var(--rule-strong)" stroke-width="1"/>
+    <line x1="0" y1="${yBase}" x2="${plotW}" y2="${yBase}" stroke="var(--rule-strong)" stroke-width="1"/>
     ${bars}
+    ${refLines}
   </svg>`;
 }
 
@@ -631,10 +740,15 @@ function kFinish(){
             <span style="display:inline-block;width:8px;height:8px;background:var(--red);border-radius:1px;margin:0 4px 0 10px;"></span>Salah
           </span>
         </div>
-        <p style="margin:0 0 6px;color:var(--ink-faint);font-size:11.5px;">Angka di atas tiap batang = jumlah soal yang berhasil diselesaikan pada kolom tersebut.</p>
+        <p style="margin:0 0 6px;color:var(--ink-faint);font-size:11.5px;">Angka di atas tiap batang = jumlah soal yang berhasil diselesaikan pada kolom tersebut. Garis putus-putus oranye menandai ambang batas kategori kecepatan di bawah ini.</p>
         <div style="overflow-x:auto; border:1px solid var(--rule); background:var(--paper); padding:6px 4px;">
           ${chartSvg}
         </div>
+        <ul style="margin:10px 0 0; padding-left:18px; color:var(--ink-soft); font-size:12px; line-height:1.7;">
+          <li><b>Rata-rata (Standar Umum):</b> 10–15 soal per 30 detik.</li>
+          <li><b>Bagus / Above Average:</b> 16–22 soal per 30 detik.</li>
+          <li><b>Sangat Bagus / Istimewa:</b> 23+ soal per 30 detik.</li>
+        </ul>
       </div>` : '';
   $('k-summary-box').innerHTML = `
     <div class="k-summary">
@@ -661,6 +775,28 @@ $('k-input').addEventListener('input', e=>{
   e.target.value = e.target.value.replace(/[^0-9]/g,'').slice(-1);
 });
 kUpdateStats();
+
+/* ---------- Mobile: block native keyboard, use on-screen numeric keypad only ---------- */
+const kMobileMQ = window.matchMedia('(max-width:600px)');
+function kApplyMobileMode(mq){
+  // On mobile the visible input becomes read-only so the OS keyboard never pops up;
+  // digits are entered via the custom keypad (numbers + Enter only).
+  $('k-input').readOnly = mq.matches;
+}
+kApplyMobileMode(kMobileMQ);
+if(kMobileMQ.addEventListener) kMobileMQ.addEventListener('change', kApplyMobileMode);
+else if(kMobileMQ.addListener) kMobileMQ.addListener(kApplyMobileMode);
+
+document.querySelectorAll('#k-keypad .k-key').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(!K.running) return;
+    $('k-input').value = btn.dataset.d;
+  });
+});
+$('k-key-enter').addEventListener('click', ()=>{
+  if(!K.running) return;
+  kSubmit();
+});
 
 /* ============================================================
    GENERIC QUIZ ENGINE (deret / sinonim / antonim / aritmatika)
