@@ -544,6 +544,32 @@ const K = {
   colCurCorrect: 0,
 };
 
+/* ---- short beep when a column's time runs out (Web Audio, no external file) ---- */
+let kAudioCtx = null;
+function kUnlockAudio(){
+  try{
+    if(!kAudioCtx) kAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(kAudioCtx.state === 'suspended') kAudioCtx.resume();
+  }catch(e){ /* Web Audio unsupported — fail silently */ }
+}
+function kBeep(){
+  if(!kAudioCtx) return;
+  try{
+    const ctx = kAudioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(660, ctx.currentTime+0.09);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.28, ctx.currentTime+0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.22);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime+0.24);
+  }catch(e){ /* fail silently */ }
+}
+
 function kRenderColumn(){
   const col = $('k-column');
   col.innerHTML = '';
@@ -598,6 +624,7 @@ function kUpdateStats(){
 function kTick(){
   K.timeLeft--;
   if(K.timeLeft<=0){
+    kBeep();
     kNewColumn();
   } else {
     kUpdateStats();
@@ -627,6 +654,7 @@ function kSubmit(){
 }
 
 function kStart(){
+  kUnlockAudio();
   $('k-start').disabled = true;
   $('k-area').classList.add('hidden');
   $('k-countdown').classList.remove('hidden');
